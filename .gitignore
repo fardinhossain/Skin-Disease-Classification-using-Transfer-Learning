@@ -1,0 +1,37 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# PyTorch model files (optional - uncomment if you don't want to track large model files)
+# *.pth
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Output files
+*.png
+*.jpg
+*.jpeg
+!dataset/**/*.jpg
+!dataset/**/*.jpeg
+!dataset/**/*.png
+prediction_result.png
+
+# Logs
+*.log

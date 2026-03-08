@@ -1,0 +1,288 @@
+\documentclass[conference]{IEEEtran}
+
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{cite}
+\usepackage{url}
+\usepackage{balance}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{float}
+\hypersetup{colorlinks=true, linkcolor=black, citecolor=black, urlcolor=black}
+\renewcommand{\thesection}{\Roman{section}}
+\setlength{\textfloatsep}{4pt plus 1pt minus 1pt}
+\setlength{\floatsep}{4pt plus 1pt minus 1pt}
+\setlength{\intextsep}{4pt plus 1pt minus 1pt}
+\setlength{\abovecaptionskip}{2pt}
+\setlength{\belowcaptionskip}{0pt}
+\setlength{\parskip}{0pt}
+\setlength{\itemsep}{0pt}
+
+\title{Skin Diseases Classification Using Transfer
+Learning Based Convolutional Neural Networks}
+
+\author{\IEEEauthorblockN{Md. Fardin Hossain}
+\IEEEauthorblockA{Department of Computer Science and Engineering (CSE)\\
+Southeast University\\
+Mirpur, Dhaka 1216, Bangladesh\\
+fardin1427fm@gmail.com}
+}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Many people cannot easily see a skin specialist, so simple screening tools can be helpful. In this study, I test whether transfer learning can classify skin diseases well even with a small dataset. I fine-tuned two pre-trained CNN models (GoogLeNet and MobileNetV2) on a Kaggle dataset with 8 infectious skin diseases (bacterial, fungal, parasitic, and viral). The dataset contains 925 training images and 236 test images. With the same preprocessing, augmentation, and training setup for both models, GoogLeNet reached 98.72\% test accuracy and MobileNetV2 reached 97.86\%. These results show that transfer learning can work well with limited labeled images. They also show a clear trade-off: GoogLeNet is slightly more accurate, while MobileNetV2 is much smaller and is more suitable for running on a smartphone or other low-power devices.
+I also used confusion matrices to see where the models make mistakes across classes. Overall, the results support using a compact model for fast screening, while complex or low-confidence cases should still be checked by a doctor.
+\end{abstract}
+
+\begin{IEEEkeywords}
+transfer learning, convolutional neural networks, skin disease classification, GoogLeNet, MobileNetV2, medical imaging
+\end{IEEEkeywords}
+
+\section{INTRODUCTION}
+Skin diseases are common and often visually ambiguous, which makes timely diagnosis difficult outside specialist care. CNNs have shown strong performance in dermatological image classification \cite{Wan2023MedIA,Tahir2023DSCCNet}, but training them from scratch typically requires large, carefully labeled datasets that are hard to assemble in clinical settings. This motivates transfer learning, where a model pre-trained on large-scale natural images is adapted to a smaller medical dataset \cite{Balaha2023SpaSA}.
+
+This study uses an eight-class dataset that includes common infectious conditions (bacterial, fungal, parasitic, and viral). The goal is to evaluate whether transfer learning can deliver accurate multi-class classification under limited training data.
+
+\subsection{Convolutional Neural Networks (CNNs)}
+Convolutional neural networks (CNNs) are the dominant architecture for image classification because they learn spatially localized patterns using convolutional filters and weight sharing. In practice, early layers learn low-level features such as edges and color gradients, while deeper layers compose these into higher-level representations that can capture lesion texture, border irregularity, and color distribution. Pooling and strided convolutions provide limited translation invariance, which is important because the region of interest may not be centered and images can vary in scale and orientation.
+
+In this project, CNNs are used as feature extractors and classifiers for eight skin disease categories. The input images are resized to $224\times224$ and passed through a deep CNN backbone to produce a compact feature embedding, which is then mapped to class probabilities by a task-specific classifier head. This design aligns with established CNN practice in dermatological image analysis and supports stable learning even when the dataset is relatively small \cite{Wan2023MedIA,Tahir2023DSCCNet}.
+
+\subsection{Transfer Learning}
+Transfer learning refers to reusing knowledge learned from a source task to improve performance on a target task, typically by initializing a model with weights pre-trained on a large dataset such as ImageNet. For medical imaging problems, this strategy is effective because the pre-trained network already encodes general visual primitives, including edges, textures, and shape cues, that remain useful when adapting to clinical categories. This reduces the amount of labeled medical data required and often improves convergence and generalization \cite{Balaha2023SpaSA,Alenezi2023MelanomaESWA}.
+
+In this work, I applied transfer learning to GoogLeNet and MobileNetV2 by retaining the pre-trained backbone and replacing the classifier with an eight-class head. Early layers were frozen, and only the final blocks plus the new head were fine-tuned on the Kaggle dataset to reduce overfitting under limited data.
+
+\textbf{Problem Statement:} So here's what I set out to do: take a small dataset (less than a thousand training images across eight conditions) and build something that actually works on images the model has never seen. Oh, and ideally, make it small enough to run on a phone. Not asking for much, right?
+
+\subsection{Contributions}
+What I actually did in this project:
+\begin{enumerate}
+\item Trained both GoogLeNet and MobileNetV2 on the same 8-class skin dataset using identical settings, so any performance difference is really about the architecture, not my training choices.
+\item Looked closely at the trade-off between accuracy and model size, because what's the point of a super-accurate model if it can't run anywhere?
+\item Saved everything (code, checkpoints, training logs) so anyone who wants to build on this work can pick up where I left off.
+\end{enumerate}
+
+\section{RELATED WORKS (LITERATURE REVIEW)}
+I spent some time reading what others have done in this space, and there's quite a bit of interesting work. Balaha and Hassan (2023) showed that combining deep transfer learning with meta-heuristic hyperparameter search can improve skin cancer diagnosis performance \cite{Balaha2023SpaSA}. Wan et al. (2023) explored feature learning objectives that encourage intra-class consistency and inter-class discrimination for automatic skin lesion classification \cite{Wan2023MedIA}. Alenezi et al. (2023) proposed a multi-stage melanoma recognition pipeline using deep residual networks with hyperparameter optimization as a decision support tool \cite{Alenezi2023MelanomaESWA}. Tahir et al. (2023) introduced a CNN-based multi-class model (DSCC\_Net) and compared it against several deep baselines on common benchmark datasets \cite{Tahir2023DSCCNet}. Dimililer and Sekeroglu (2023) also demonstrated CNN-based transfer learning for skin lesion classification using smartphone images, which supports the practicality of adapting pre-trained backbones under limited clinical data \cite{Dimililer2023GUJS}.
+
+The common thread? Everyone uses transfer learning when they don't have enough labeled medical images. It's basically become standard practice.
+
+Another point I noticed is that many papers aim for the best accuracy, but they do not always discuss whether the model is small enough for real use. For practical screening, especially on phones, model size and speed matter along with accuracy. This is why lightweight backbones like MobileNet are becoming more common in medical image projects.
+
+\textbf{Research Gap:} What struck me, though, is how much of this research focuses on dermoscopy and melanoma. Those are important, sure, but what about the everyday infections like ringworm, impetigo, and shingles that regular doctors encounter constantly? Also, not many papers directly compare lightweight models for this kind of multi-class problem.
+
+\textbf{Proposed Solution:} That's the gap I tried to fill. I picked GoogLeNet (accuracy-focused) and MobileNetV2 (efficiency-focused) and tested them head-to-head on a dataset of common infectious skin conditions. Same data, same training setup, fair fight.
+
+\section{METHODOLOGY}
+\subsection{Dataset}
+I found a dataset on Kaggle put together by Subir Biswas \cite{BiswasKaggleSkinDiseaseDataset}. It has eight categories: cellulitis and impetigo (bacterial), athlete's foot, nail fungus, and ringworm (fungal), cutaneous larva migrans (parasitic), plus chickenpox and shingles (viral). With 925 training images and 236 test images, it's not huge, but that's kind of the point. I wanted to see what transfer learning could do with limited data.
+
+Table~\ref{tab:dataset} reports class counts; the split is moderately imbalanced (for example, impetigo has 80 training images and cellulitis has 136).
+
+\begin{table}[ht]
+\caption{Dataset distribution (images per class).}
+\label{tab:dataset}
+\centering
+\begin{tabular}{lrr}
+\toprule
+\textbf{Class} & \textbf{Train} & \textbf{Test} \\
+\midrule
+BA-cellulitis & 136 & 35 \\
+BA-impetigo & 80 & 20 \\
+FU-athlete-foot & 124 & 32 \\
+FU-nail-fungus & 129 & 33 \\
+FU-ringworm & 90 & 23 \\
+PA-cutaneous-larva-migrans & 100 & 25 \\
+VI-chickenpox & 136 & 34 \\
+VI-shingles & 130 & 34 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Preprocessing and Augmentation}
+Every image is resized to $224\times224$ pixels and normalized using ImageNet statistics to match the pre-training distribution.
+
+Because 925 training images are limited, augmentation is used to reduce overfitting:
+\begin{enumerate}
+\item Horizontal flips (half the time) and occasional vertical flips (20\% of the time)
+\item Random rotations up to $20^{\circ}$, since skin photos aren't always perfectly aligned
+\item Color jitter: randomly messing with brightness, contrast, saturation
+\item Small shifts in position (up to 10\%), because not every photo centers the lesion perfectly
+\end{enumerate}
+The idea is to show the model many variations of each image so it learns the actual disease patterns rather than memorizing specific photos.
+
+\subsection{Transfer Learning Models}
+I deliberately picked two architectures that sit at opposite ends of the spectrum:
+\begin{enumerate}
+\item \textbf{GoogLeNet (Inception-v1):} This one's been around since 2014 but still holds up. It uses these "Inception modules" where each layer branches out into multiple paths with different filter sizes. Clever design, but it's on the heavier side.
+\item \textbf{MobileNetV2:} Google designed this specifically for phones. It uses "inverted residual" blocks that cut down on computation dramatically. The whole model is less than 4 million parameters.
+\end{enumerate}
+
+For both, I froze the early layers (no point retraining basic edge detectors) and replaced the classifier head with my own: a couple of fully connected layers with 512 hidden units and dropout to prevent overfitting. Then I unfroze the last few convolutional blocks and fine-tuned everything together.
+
+\subsection{Loss Function and Optimization}
+Training employs multi-class cross-entropy loss. Given an input sample with ground-truth class $y$ and model output logits $\mathbf{z}$, the softmax probability for class $k$ is computed as
+\begin{equation}
+p_k = \frac{e^{z_k}}{\sum_j e^{z_j}},
+\end{equation}
+and the corresponding loss is
+\begin{equation}
+\mathcal{L} = -\log(p_y).
+\end{equation}
+
+\subsection{Evaluation Metrics}
+Classification accuracy on the held-out test set serves as the primary evaluation metric:
+\begin{equation}
+\mathrm{Accuracy} = \frac{N_{\text{correct}}}{N_{\text{total}}} \times 100\%,
+\end{equation}
+where $N_{\text{correct}}$ is the number of correctly classified samples and $N_{\text{total}}$ is the total number of test samples.
+Confusion matrices are additionally employed to visualize per-class prediction patterns and identify systematic misclassifications. These evaluation practices align with established conventions in CNN-based medical image classification \cite{Wan2023MedIA}.
+
+\subsection{Training Setup}
+Training ran for 25 epochs with Adam (learning rate 0.001, weight decay 0.0001) and ReduceLROnPlateau to lower the learning rate when validation accuracy stalled.
+
+Table~\ref{tab:trainsetup} has all the details if you want to replicate this.
+
+\begin{table}[ht]
+\caption{Training configuration.}
+\label{tab:trainsetup}
+\centering
+\begin{tabular}{lr}
+\toprule
+\textbf{Setting} & \textbf{Value}\\
+\midrule
+Input size & $224\times224$ \\
+Batch size & 32 \\
+Epochs & 25 \\
+Optimizer & Adam \\
+Learning rate & $1\times10^{-3}$ \\
+Weight decay & $1\times10^{-4}$ \\
+Scheduler & ReduceLROnPlateau \\
+Framework & PyTorch + TorchVision \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Manual Testing}
+Beyond aggregate evaluation, both models were checked on individual images to sanity-check behavior.
+
+\section{RESULTS}
+Alright, here's what I found. Table~\ref{tab:results} tells the main story: GoogLeNet got 98.72\% accuracy, MobileNetV2 got 97.86\%. That's less than a 1\% gap, which honestly surprised me given how much smaller MobileNetV2 is.
+
+\begin{table}[ht]
+\caption{Model performance summary.}
+\label{tab:results}
+\centering
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Model} & \textbf{Best Test Acc. (\%)} & \textbf{Total Params} & \textbf{Trainable Params} \\
+\midrule
+GoogLeNet & 98.72 & 12,508,792 & 2,854,888 \\
+MobileNetV2 & 97.86 & 2,883,848 & 2,341,320 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Fig.~\ref{fig:traincurve} and Fig.~\ref{fig:traincurve_mb} show learning curves, Fig.~\ref{fig:cm} and Fig.~\ref{fig:cm_mb} show confusion matrices, and Fig.~\ref{fig:compare} compares test accuracy.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\columnwidth]{figures/GoogLeNet_training_history.png}
+\caption{GoogLeNet training and test accuracy/loss.}
+\label{fig:traincurve}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\columnwidth]{figures/MobileNetV2_training_history.png}
+\caption{MobileNetV2 training and test accuracy/loss.}
+\label{fig:traincurve_mb}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\columnwidth]{figures/GoogLeNet_confusion_matrix.png}
+\caption{GoogLeNet confusion matrix.}
+\label{fig:cm}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\columnwidth]{figures/MobileNetV2_confusion_matrix.png}
+\caption{MobileNetV2 confusion matrix.}
+\label{fig:cm_mb}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\columnwidth]{figures/model_comparison.png}
+\caption{Test accuracy comparison.}
+\label{fig:compare}
+\end{figure}
+
+\subsection{Qualitative Prediction Examples}
+Four random test images were classified using both models. Table~\ref{tab:qual} shows predictions and Fig.~\ref{fig:predexamples} displays the images with model outputs.
+
+% Auto-generated table (run: paper/make_prediction_figure.py)
+\IfFileExists{predictions_table.tex}{\input{predictions_table.tex}}{\textit{Prediction table not found.}}
+
+% Auto-generated accuracy text (optional; produced if dataset/new_random_test/labels.csv exists)
+\IfFileExists{predictions_accuracy.tex}{\input{predictions_accuracy.tex}}{}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\columnwidth]{figures/prediction_examples.png}
+\caption{Prediction examples from both models.}
+\label{fig:predexamples}
+\end{figure}
+
+\subsection{Discussion}
+Both models achieved high accuracy, which supports transfer learning for small dermatology datasets. GoogLeNet exceeded MobileNetV2 by 0.86 percentage points, but this gain comes with a substantially larger parameter count.
+
+The confusion matrices (Fig.~\ref{fig:cm} and Fig.~\ref{fig:cm_mb}) suggest that most classes are recognized consistently, with only a few confusions between visually similar conditions. This is expected in real photos where lighting, camera quality, and skin tone differences can change the appearance of the same disease.
+
+GoogLeNet has 12.5 million parameters versus 2.9 million for MobileNetV2. For deployment on resource-constrained devices, MobileNetV2 is the more practical choice.
+
+From the learning curves (Fig.~\ref{fig:traincurve} and Fig.~\ref{fig:traincurve_mb}), accuracy saturated early and the train-test gap remained limited, suggesting acceptable generalization.
+
+In qualitative examples (Fig.~\ref{fig:predexamples}), both models produced correct labels, with GoogLeNet often yielding higher confidence.
+
+For most deployments, MobileNetV2 offers a better accuracy-efficiency balance. In clinical settings, confidence reporting and referral of low-confidence cases remain essential.
+
+\section{CONCLUSION}
+When I started this project, I wanted to know if transfer learning could make skin disease classification work with a small dataset. The answer turns out to be a solid yes. 925 training images, 8 disease classes, and I got 98.72\% accuracy with GoogLeNet and 97.86\% with MobileNetV2. That's better than I honestly expected.
+
+The bigger lesson here is that you don't need massive datasets to build useful medical AI. Pre-trained models have already learned so much from ImageNet that they just need a little nudge in the right direction. MobileNetV2 particularly impressed me, being almost as accurate as its bigger sibling while being small enough to actually run on a phone.
+
+What's next? I'd love to test this on data from different countries and clinics to see if it holds up. I'm also curious about calibration, making sure the confidence scores actually mean something. Because at the end of the day, the goal isn't just to build a cool model. It's to help healthcare workers, especially in places where specialists are hard to find, give better care to their patients.
+
+I should also be clear about the limitations. This dataset is relatively small and comes from a single public source, and some classes have fewer images than others. In future work, I plan to evaluate the models on external datasets and real clinic photos, and to report additional metrics such as per-class precision, recall, and F1-score. These steps would give a stronger picture of reliability before any real-world use.
+
+
+\balance
+\begin{thebibliography}{6}
+\bibitem{Alenezi2023MelanomaESWA}
+Alenezi, F., Armghan, A., \& Polat, K. (2023). A multi-stage melanoma recognition framework with deep residual neural network and hyperparameter optimization-based decision support in dermoscopy images. \textit{Expert Systems with Applications, 215}, 119352. https://www.sciencedirect.com/science/article/pii/S0957417422023703
+
+\bibitem{Balaha2023SpaSA}
+Balaha, H. M., \& Hassan, A. E.-S. (2023). Skin cancer diagnosis based on deep transfer learning and sparrow search algorithm. \textit{Neural Computing and Applications, 35}(1), 815-853. https://link.springer.com/article/10.1007/s00521-022-07762-9
+
+\bibitem{Wan2023MedIA}
+Wan, L., Zhang, L., Shu, X., \& Yi, Z. (2023). Intra-class consistency and inter-class discrimination feature learning for automatic skin lesion classification. \textit{Medical Image Analysis, 85}, 102746. https://www.sciencedirect.com/science/article/pii/S1361841523000075
+
+\bibitem{Tahir2023DSCCNet}
+Tahir, M., Naeem, A., Malik, H., Tanveer, J., Naqvi, R. A., \& Lee, S.-W. (2023). DSCC\_Net: Multi-classification deep learning models for diagnosing of skin cancer using dermoscopic images. \textit{Cancers, 15}(7), 2179. https://www.mdpi.com/2072-6694/15/7/2179
+
+\bibitem{Dimililer2023GUJS}
+Dimililer, K., \& Sekeroglu, B. (2023). Skin lesion classification using CNN-based transfer learning model. \textit{Gazi University Journal of Science, 36}(2), 660-673. https://dergipark.org.tr/en/doi/10.35378/gujs.1063289
+
+\bibitem{BiswasKaggleSkinDiseaseDataset}
+Biswas, S. (n.d.). \textit{Skin-Disease-Dataset} (Version 1) [Data set]. Kaggle. Retrieved January 17, 2026, from https://www.kaggle.com/datasets/subirbiswas19/skin-disease-dataset
+\end{thebibliography}
+
+\end{document}
