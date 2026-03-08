@@ -25,6 +25,7 @@ A deep learning-based skin disease classification system using transfer learning
 - [Future Improvements](#future-improvements)
 - [Contributing](#contributing)
 - [License](#license)
+- [Research Paper](#research-paper)
 - [Author](#author)
 - [Citation](#citation)
 
@@ -349,14 +350,27 @@ Contributions are welcome! Please follow these guidelines:
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
-## ‍💻 Author
+
+## 📑 Research Paper
+
+The full research paper documenting this work is available:
+
+📥 **[Download Paper (PDF)](https://drive.google.com/uc?export=download&id=1KCmwyZRoFR6BjF0R85KI72bckmm0xnp0)** | 👁️ **[View Paper](https://drive.google.com/file/d/1KCmwyZRoFR6BjF0R85KI72bckmm0xnp0/view?usp=sharing)**
+
+**Title:** *Skin Diseases Classification Using Transfer Learning Based Convolutional Neural Networks*
+
+**Abstract:** This study evaluates transfer learning for classifying 8 infectious skin diseases using GoogLeNet and MobileNetV2. With identical preprocessing and training setups, GoogLeNet achieved 98.72% test accuracy while MobileNetV2 reached 97.86%, demonstrating effective classification even with limited labeled data (~925 training images).
+
+---
+
+## 👨‍💻 Author
 
 **Md. Fardin Hossain**
 
 - **Email:** fardin1427fm@gmail.com
 - **Institution:** Department of CSE, Southeast University, Dhaka, Bangladesh
-- **GitHub:** [@yourusername](https://github.com/yourusername)
-- **LinkedIn:** [Your LinkedIn](https://linkedin.com/in/yourprofile)
+- **GitHub:** [@fardinhossain](https://github.com/fardinhossain)
+- **LinkedIn:** [fardinhossain1427](https://linkedin.com/in/fardinhossain1427)
 
 ---
 
@@ -378,7 +392,7 @@ If you use this work in your research, please cite:
 
 ## 🙏 Acknowledgments
 
-- Dataset provided by [Subir Biswas on Kaggle](https://www.kaggle.com/)
+- Dataset provided by [Subir Biswas on Kaggle](https://www.kaggle.com/datasets/subirbiswas19/skin-disease-dataset)
 - Pre-trained models from [PyTorch/torchvision](https://pytorch.org/vision/)
 - Inspired by research in medical image analysis
 
